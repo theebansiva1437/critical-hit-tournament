@@ -65,10 +65,10 @@
       <div class="ctl">
         <label>Players</label>
         <div class="count">
-          <input id="num" class="num" type="number" min="1" max="56" value="32" oninput="fromNum()">
-          <span class="lbl">of 56 max</span>
+          <input id="num" class="num" type="number" min="1" max="80" value="32" oninput="fromNum()">
+          <span class="lbl">of 80 max</span>
         </div>
-        <input id="slider" type="range" min="1" max="56" value="32" oninput="fromSlider()" style="margin-top:10px">
+        <input id="slider" type="range" min="1" max="80" value="32" oninput="fromSlider()" style="margin-top:10px">
       </div>
     </div>
 
@@ -116,6 +116,8 @@ let entry = 20;
 
 // Attendance brackets -> percentage split of the prize pool
 const BRACKETS = [
+  { min:64, label:"Top 24", pct:[24,15,8,8, 4.5,4.5,4.5,4.5, 2.25,2.25,2.25,2.25,2.25,2.25,2.25,2.25, 1.125,1.125,1.125,1.125,1.125,1.125,1.125,1.125],
+    names:["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th","14th","15th","16th","17th","18th","19th","20th","21st","22nd","23rd","24th"] },
   { min:48, label:"Top 16", pct:[26,16,9,9, 5,5,5,5, 2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5],
     names:["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th","14th","15th","16th"] },
   { min:32, label:"Top 12", pct:[28,18,10,10, 5.5,5.5,5.5,5.5, 3,3,3,3],
@@ -139,7 +141,7 @@ function setEntry(v){
   render();
 }
 function fromNum(){
-  let v = Math.max(1, Math.min(56, parseInt(document.getElementById('num').value)||1));
+  let v = Math.max(1, Math.min(80, parseInt(document.getElementById('num').value)||1));
   document.getElementById('slider').value = v;
   render();
 }
