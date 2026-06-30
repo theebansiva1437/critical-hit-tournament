@@ -6,13 +6,16 @@
 <title>Critical Hit Tournament Calculators</title>
 <style>
   :root{
-    --bg:#0f1226; --card:#1a1f3a; --card2:#222a4d; --accent:#5b8cff;
-    --accent2:#34d399; --text:#e8ecff; --muted:#9aa4c7; --line:#2c3560; --warn:#f59e0b;
+    --bg:#0a0b08; --card:#15170f; --card2:#1f2215; --accent:#d8b341;
+    --accent2:#4caf50; --text:#ece9da; --muted:#9a957c; --line:#3a3a22; --warn:#f59e0b;
+    --gold:#d8b341; --green:#43a047; --greenDark:#2e7d32;
   }
   *{box-sizing:border-box;}
   body{
     margin:0; font-family:'Segoe UI',system-ui,sans-serif; background:
-    radial-gradient(900px 500px at 80% -10%, #2a3570 0%, transparent 60%), var(--bg);
+    radial-gradient(900px 520px at 82% -12%, #1b2a12 0%, transparent 60%),
+    radial-gradient(680px 420px at 8% -4%, #2c2510 0%, transparent 58%),
+    var(--bg);
     color:var(--text); min-height:100vh; padding:32px 16px;
   }
   .wrap{max-width:880px;margin:0 auto;}
@@ -24,7 +27,7 @@
   label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
   .toggle{display:flex;gap:8px;}
   .toggle button{flex:1;padding:12px;border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:.15s;}
-  .toggle button.active{background:linear-gradient(135deg,var(--accent),#7aa2ff);border-color:transparent;box-shadow:0 4px 14px rgba(91,140,255,.4);}
+  .toggle button.active{background:linear-gradient(135deg,var(--greenDark),var(--green));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(67,160,71,.4);}
   input[type=range]{width:100%;accent-color:var(--accent);height:6px;}
   .count{display:flex;align-items:baseline;gap:10px;}
   .count .big{font-size:40px;font-weight:700;color:var(--accent2);}
@@ -40,7 +43,7 @@
   th,td{padding:11px 14px;text-align:left;font-size:15px;}
   th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line);}
   tbody tr{border-bottom:1px solid rgba(44,53,96,.5);}
-  tbody tr:hover{background:rgba(91,140,255,.07);}
+  tbody tr:hover{background:rgba(216,179,65,.07);}
   td.amt{text-align:right;font-weight:700;color:var(--accent2);font-size:16px;}
   td.place{font-weight:600;}
   .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:12px;color:var(--muted);margin-left:8px;}
@@ -51,9 +54,15 @@
   /* Tabs */
   .tabs{display:flex;gap:10px;margin-bottom:22px;}
   .tabs button{flex:1;padding:14px;border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:.15s;}
-  .tabs button.active{background:linear-gradient(135deg,var(--accent),#7aa2ff);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(91,140,255,.4);}
+  .tabs button.active{background:linear-gradient(135deg,var(--greenDark),var(--green));color:#fff;border-color:#d8b341;box-shadow:0 6px 18px rgba(67,160,71,.45);}
   .tabpane{display:none;}
   .tabpane.active{display:block;}
+
+  /* Brand header */
+  .brand{text-align:center;margin-bottom:14px;}
+  .logo{max-width:360px;width:82%;height:auto;filter:drop-shadow(0 8px 24px rgba(0,0,0,.7));}
+  .brandname{font-family:'Cinzel','Trajan Pro','Times New Roman',serif;font-size:44px;font-weight:800;color:var(--green);-webkit-text-stroke:1.4px var(--gold);text-stroke:1.4px var(--gold);letter-spacing:3px;display:block;line-height:1;}
+  .brandsub{display:block;color:#8c8970;letter-spacing:7px;font-size:13px;margin-top:6px;}
 
   /* Portion calculator specifics (scoped so they don't bleed into the other tab) */
   #tab-portion .ctl{min-width:150px;}
@@ -70,8 +79,16 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Critical Hit Tournament Calculators</h1>
-  <p class="sub">Two ways to split the prize pool, both paid in store credit</p>
+  <div class="brand">
+    <img src="logo.png" alt="Critical Hit Gaming Lounge" class="logo"
+         onerror="this.style.display='none';document.getElementById('textlogo').style.display='block';">
+    <div id="textlogo" style="display:none">
+      <span class="brandname">CRITICAL HIT</span>
+      <span class="brandsub">GAMING LOUNGE</span>
+    </div>
+  </div>
+  <h1 style="text-align:center;font-size:22px">Tournament Prize Calculators</h1>
+  <p class="sub" style="text-align:center">Two ways to split the prize pool, both paid in store credit</p>
 
   <div class="tabs">
     <button id="tabbtn-portion" class="active" onclick="switchTab('portion')">Portion Payout</button>
