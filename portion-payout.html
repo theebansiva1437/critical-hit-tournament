@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Critical Hit Tournament Portion Payout Calculator</title>
+<style>
+  :root{
+    --bg:#0f1226; --card:#1a1f3a; --card2:#222a4d; --accent:#5b8cff;
+    --accent2:#34d399; --text:#e8ecff; --muted:#9aa4c7; --line:#2c3560; --warn:#f59e0b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI',system-ui,sans-serif; background:
+    radial-gradient(900px 500px at 80% -10%, #2a3570 0%, transparent 60%), var(--bg);
+    color:var(--text); min-height:100vh; padding:32px 16px;
+  }
+  .wrap{max-width:880px;margin:0 auto;}
+  h1{font-size:25px;margin:0 0 4px;letter-spacing:.3px;}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:14px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:20px;box-shadow:0 8px 30px rgba(0,0,0,.3);}
+  .controls{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;}
+  .ctl{flex:1;min-width:150px;}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
+  input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:17px;text-align:center;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .toggle{display:flex;gap:6px;}
+  .toggle button{flex:1;padding:9px;border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;}
+  .toggle button.active{background:linear-gradient(135deg,var(--accent),#7aa2ff);border-color:transparent;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px;}
+  .stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
+  .stat .v{font-size:21px;font-weight:700;}
+  .stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:4px;}
+  .stat.green .v{color:var(--accent2);}
+  .stat.blue .v{color:var(--accent);}
+  table{width:100%;border-collapse:collapse;margin-top:4px;}
+  th,td{padding:10px 10px;text-align:left;font-size:14px;}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line);}
+  tbody tr{border-bottom:1px solid rgba(44,53,96,.5);}
+  td input{width:100%;padding:7px;border-radius:6px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:14px;}
+  td.rec input{text-align:left;}
+  td.num input{text-align:center;}
+  td.each,td.total{text-align:right;font-weight:700;color:var(--accent2);font-variant-numeric:tabular-nums;}
+  td.del{text-align:center;width:32px;}
+  .del button{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;}
+  .del button:hover{color:#ff6b6b;}
+  .addbtn{margin-top:12px;background:var(--card2);border:1px dashed var(--line);color:var(--accent);padding:9px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;}
+  .note{font-size:13px;color:var(--muted);line-height:1.6;margin-top:14px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:10px;padding:12px 14px;}
+  .note.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.35);}
+  .foot{font-size:12px;color:var(--muted);text-align:center;margin-top:18px;}
+  h2{margin:0 0 2px;font-size:18px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Critical Hit Tournament Portion Payout Calculator</h1>
+  <p class="sub">Record-based "shares" split &middot; pool divided by total portions earned &middot; paid in store credit</p>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="ctl">
+        <label>Entry Fee ($)</label>
+        <input id="entry" type="number" min="1" value="5" oninput="recalc()">
+      </div>
+      <div class="ctl">
+        <label>Total Players</label>
+        <input id="players" type="number" min="1" value="20" oninput="recalc()">
+      </div>
+      <div class="ctl">
+        <label>% of Entries to Pool: <span id="poolLbl" style="color:var(--accent2)">100%</span></label>
+        <input id="poolPct" type="range" min="50" max="100" value="100" oninput="recalc()">
+      </div>
+      <div class="ctl" style="max-width:200px">
+        <label>Rounding</label>
+        <div class="toggle">
+          <button id="r0" class="active" onclick="setRound(0)">Exact</button>
+          <button id="r1" onclick="setRound(1)">$1</button>
+          <button id="r5" onclick="setRound(5)">$5</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat blue"><div class="v" id="gross">$100</div><div class="k">Entries Collected</div></div>
+      <div class="stat"><div class="v" id="pool">$100</div><div class="k">Prize Pool</div></div>
+      <div class="stat"><div class="v" id="portions">0</div><div class="k">Total Portions</div></div>
+      <div class="stat green"><div class="v" id="pval">$0</div><div class="k">Value of 1 Portion</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Records &amp; Portions</h2>
+    <p class="sub" style="margin:0 0 12px">After the final round, enter how many players landed at each paying record. Edit the portion weights to set the curve.</p>
+    <table>
+      <thead><tr>
+        <th style="width:34%">Record (label)</th>
+        <th style="width:16%">Portions ea</th>
+        <th style="width:16%"># Players</th>
+        <th style="text-align:right">$ Each</th>
+        <th style="text-align:right">Tier Total</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <button class="addbtn" onclick="addRow()">+ Add record tier</button>
+    <div class="note" id="note"></div>
+    <div class="note warn" id="checknote" style="display:none"></div>
+  </div>
+
+  <div class="foot">Portion value = prize pool &divide; total portions earned. Computed live, so it can never overpay the pool.</div>
+  <div class="foot" style="margin-top:6px;font-size:13px;color:var(--accent2);font-weight:600">Made by Theeban Siva</div>
+</div>
+
+<script>
+let rounding = 0; // 0 = exact, else nearest $rounding
+// Default tiers from the discussed model (4-round event)
+let tiers = [
+  { rec:"X-0 (undefeated)",       w:3, n:2 },
+  { rec:"X-0-1 (undefeated, draw)", w:2, n:1 },
+  { rec:"X-1 (one loss)",         w:1, n:4 },
+];
+
+function setRound(v){
+  rounding = v;
+  document.getElementById('r0').classList.toggle('active', v===0);
+  document.getElementById('r1').classList.toggle('active', v===1);
+  document.getElementById('r5').classList.toggle('active', v===5);
+  recalc();
+}
+
+function roundTo(n){
+  if(rounding===0) return Math.round(n*100)/100;
+  return Math.round(n/rounding)*rounding;
+}
+function fmt(n){
+  return (rounding===0) ? "$"+n.toFixed(2) : "$"+n;
+}
+
+function renderRows(){
+  let html = "";
+  tiers.forEach((t,i)=>{
+    html += `<tr>
+      <td class="rec"><input value="${t.rec.replace(/"/g,'&quot;')}" oninput="upd(${i},'rec',this.value)"></td>
+      <td class="num"><input type="number" min="0" step="0.5" value="${t.w}" oninput="upd(${i},'w',this.value)"></td>
+      <td class="num"><input type="number" min="0" value="${t.n}" oninput="upd(${i},'n',this.value)"></td>
+      <td class="each" id="each-${i}">$0</td>
+      <td class="total" id="total-${i}">$0</td>
+      <td class="del"><button onclick="delRow(${i})" title="Remove">&times;</button></td>
+    </tr>`;
+  });
+  document.getElementById('rows').innerHTML = html;
+  recalc();
+}
+function upd(i,key,val){
+  tiers[i][key] = (key==='rec') ? val : (parseFloat(val)||0);
+  recalc();
+}
+function addRow(){ tiers.push({rec:"New record",w:1,n:0}); renderRows(); }
+function delRow(i){ tiers.splice(i,1); renderRows(); }
+
+function recalc(){
+  const entry = parseFloat(document.getElementById('entry').value)||0;
+  const players = parseInt(document.getElementById('players').value)||0;
+  const poolPct = parseInt(document.getElementById('poolPct').value)||100;
+  document.getElementById('poolLbl').textContent = poolPct+"%";
+
+  const gross = entry*players;
+  const pool = Math.round(gross*poolPct/100*100)/100;
+  const totalPortions = tiers.reduce((a,t)=> a + t.w*t.n, 0);
+  const pval = totalPortions>0 ? pool/totalPortions : 0;
+
+  document.getElementById('gross').textContent = "$"+(Number.isInteger(gross)?gross:gross.toFixed(2));
+  document.getElementById('pool').textContent = "$"+(Number.isInteger(pool)?pool:pool.toFixed(2));
+  document.getElementById('portions').textContent = totalPortions;
+  document.getElementById('pval').textContent = (rounding===0? "$"+pval.toFixed(2) : "~$"+roundTo(pval));
+
+  let paid = 0, qualifiers = 0;
+  tiers.forEach((t,i)=>{
+    const each = roundTo(t.w*pval);
+    const tierTotal = roundTo(each*t.n*1); // each already rounded; tier = each*n
+    const eachCell = document.getElementById('each-'+i);
+    const totCell = document.getElementById('total-'+i);
+    if(eachCell){ eachCell.textContent = fmt(each); }
+    if(totCell){ totCell.textContent = fmt(each*t.n); }
+    paid += each*t.n;
+    qualifiers += t.n;
+  });
+
+  document.getElementById('note').innerHTML =
+    `<b>${players} players &middot; $${entry} entry.</b> Pool of <b>$${Number.isInteger(pool)?pool:pool.toFixed(2)}</b> splits across <b>${totalPortions}</b> portions, ` +
+    `so one portion = <b>$${pval.toFixed(2)}</b>. <b>${qualifiers}</b> players cash; the rest get nothing. ` +
+    `Same record always pays the same, no tiebreakers involved.`;
+
+  const remainder = pool - paid;
+  const check = document.getElementById('checknote');
+  if(rounding!==0 && Math.abs(remainder) >= 0.005){
+    check.style.display = "block";
+    if(remainder>0){
+      check.innerHTML = `Rounding to the nearest $${rounding} leaves <b>$${remainder.toFixed(2)}</b> unspent in the pool (store keeps it, or add it to 1st).`;
+    } else {
+      check.innerHTML = `Rounding to the nearest $${rounding} pays <b>$${(-remainder).toFixed(2)}</b> over the pool. Bump the entry, lower a weight, or use Exact / $1 rounding.`;
+    }
+  } else {
+    check.style.display = "none";
+  }
+}
+
+renderRows();
+</script>
+</body>
+</html>
